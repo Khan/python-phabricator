@@ -266,6 +266,10 @@ class Resource(object):
                     raise ValueError('Wrong argument type: %s is not a list of %ss' % (key, val[0]))
                 raise ValueError('Wrong argument type: %s is not a %s' % (key, val))
 
+        return self.make_request(self.method + '.' + self.endpoint,
+                                 kwargs, urlargs)
+
+    def make_request(self, full_endpoint, kwargs={}, urlargs={}):
         conduit = self.api._conduit
 
         if conduit:
@@ -287,17 +291,17 @@ class Resource(object):
         else:
             conn = httplib.HTTPConnection(url.netloc, timeout=self.api.timeout)
 
-        path = url.path + '%s.%s' % (self.method, self.endpoint)
+        path = url.path + full_endpoint
 
         headers = {
             'User-Agent': 'python-phabricator/%s' % str(self.api.clientVersion),
             'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        body = urlencode({
-            "params": json.dumps(kwargs),
-            "output": self.api.response_format
-        })
+        urlargs = urlargs.copy()
+        urlargs["params"] = json.dumps(kwargs)
+        urlargs["output"] = self.api.response_format
+        body = urlencode(urlargs)
 
         # TODO: Use HTTP "method" from interfaces.json
         conn.request('POST', path, body, headers)
