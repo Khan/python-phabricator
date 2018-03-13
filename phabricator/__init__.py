@@ -241,9 +241,9 @@ class Resource(object):
         # Some arguments get sent as part of the url itself, not as
         # part of the phabricator arguments for this particular
         # request.  For instance, __profile__.
-        urlargs = {k: v for (k, v) in all_kwargs.iteritems()
+        urlargs = {k: v for (k, v) in iteritems(all_kwargs)
                    if k in ('__profile__',)}
-        kwargs = {k: v for (k, v) in all_kwargs.iteritems()
+        kwargs = {k: v for (k, v) in iteritems(all_kwargs)
                   if k not in urlargs}
 
         def validate_kwarg(key, target):
